@@ -12,7 +12,7 @@ for i=2,n do
 end
 require 'gnuplot'{
 	--persist = true,
-	terminal = 'svg size 1024,768',
+	terminal = 'svg size 1024,768 background "#ffffff"',
 	output = 'pics/modulo-density.svg',
 	data = {fracs},
 	xlabel = 'modulo',
