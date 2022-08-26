@@ -1,22 +1,33 @@
 #!/usr/bin/env luajit
 local table = require 'ext.table'
+
 local App = require 'imguiapp.withorbit'()
-	
+
+local cmdline = require 'ext.cmdline'(...)
+--print(require 'ext.tolua'(cmdline))
+
 local n = ... or 10
+
+-- do we want to take a pic and leave?
+local doScreenshotAndExit = cmdline.screenshot
+
+local series
+
+local gl
+
+if cmdline.width then App.width = cmdline.width end
+if cmdline.height then App.height = cmdline.height end
 
 function App:init(...)
 	self.title = 'Fibonacci Sequence Modulo '..n
 	return App.super.init(self, ...)
 end
 
-local series
-
-local gl
 function App:initGL(gl_, ...) 
 	App.super.initGL(self, gl_, ...)
 	gl = gl_
 	self.view.ortho = true
-	self.view.orthoSize = 2
+	self.view.orthoSize = 1.1
 
 
 	-- [=[ TOOD I use this often enough, put it in one place
@@ -66,6 +77,9 @@ local function getPt(i)
 end
 
 function App:update(...)
+	self.view:setup(self.width / self.height)	-- GLApp.View.apply update
+
+	gl.glClearColor(0,0,0,1)			-- yes, on my linux, destination alpha does matter for the screenshots
 	gl.glClear(gl.GL_COLOR_BUFFER_BIT)
 
 	gradTex:enable()
@@ -90,7 +104,29 @@ function App:update(...)
 	gradTex:unbind()
 	gradTex:disable()
 
-	App.super.update(self, ...)
+	if doScreenshotAndExit then
+		self:screenshotToFile(doScreenshotAndExit)
+		self:requestExit()
+	end
+
+	App.super.super.update(self, ...)	-- ImGuiApp's update
+end
+
+--[[
+TODO put this in a superclass?
+but I'm only consolidating it with hydro-cl
+and hydro-cl caches its image buffers for performance
+so I want the ability to cache images here
+but cache what? the image and its flipped target?
+and retain the ability to handle resizes?
+how about a screenshot-context / screenshot-temp object then?
+--]]
+function App:screenshotToFile(filename)
+	local Image = require 'image'
+	local w, h = self.width, self.height
+	local ssimg = Image(w, h, 4, 'unsigned char')
+	gl.glReadPixels(0, 0, w, h, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, ssimg.buffer)
+	ssimg:flip():save(filename)
 end
 
 return App():run()
