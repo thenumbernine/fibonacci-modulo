@@ -9,3 +9,13 @@ Some examples:
 1001:
 
 ![](pics/1001.png)
+
+To run the visualization:
+`run.lua [modulo-number]` 
+
+To make a collage:
+
+```
+./1-make-collage-individual.lua
+./2-combine-collage.lua
+```

@@ -1,6 +1,7 @@
 #!/usr/bin/env luajit
 local table = require 'ext.table'
 local glCallOrDraw = require 'gl.call'
+local fib = require 'fibonacci-modulo.fibonacci'
 
 local App = require 'imguiapp.withorbit'()
 
@@ -58,16 +59,9 @@ function App:initGL(...)
 	)
 	--]=]
 
-	-- fibonacci modulo
-	local f1 = 1
-	local f2 = 1
-	sequence = table{f1, f2}
-	while true do
-		local f3 = (f1 + f2) % n
-		f1,f2 = f2,f3
-		if f1 == 1 and f2 == 1 then break end
-		sequence:insert(f3)
-	end
+	sequence = fib.makeSequence(n)
+	local dense = fib.isDense(sequence, n)
+	print('dense?', dense)
 end
 
 local function getPt(i)
