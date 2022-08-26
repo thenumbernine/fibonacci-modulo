@@ -12,21 +12,19 @@ local n = ... or 10
 -- do we want to take a pic and leave?
 local doScreenshotAndExit = cmdline.screenshot
 
-local sequence
-
-local gl
-
 if cmdline.width then App.width = cmdline.width end
 if cmdline.height then App.height = cmdline.height end
 
+local gl
+local sequence
 function App:init(...)
 	self.title = 'Fibonacci Sequence Modulo '..n
 	return App.super.init(self, ...)
 end
 
-function App:initGL(gl_, ...) 
-	App.super.initGL(self, gl_, ...)
-	gl = gl_
+function App:initGL(...) 
+	App.super.initGL(self, ...)
+	gl = self.gl
 	self.view.ortho = true
 	self.view.orthoSize = 1.1
 
@@ -83,7 +81,8 @@ function App:update(...)
 	gl.glClearColor(0,0,0,1)			-- yes, on my linux, destination alpha does matter for the screenshots
 	gl.glClear(gl.GL_COLOR_BUFFER_BIT)
 
-	glCallOrDraw(self, function()
+	self.callList = self.callList or {}
+	glCallOrDraw(self.callList, function()
 		gradTex:enable()
 		gradTex:bind()
 
@@ -113,23 +112,6 @@ function App:update(...)
 	end
 
 	App.super.super.update(self, ...)	-- ImGuiApp's update
-end
-
---[[
-TODO put this in a superclass?
-but I'm only consolidating it with hydro-cl
-and hydro-cl caches its image buffers for performance
-so I want the ability to cache images here
-but cache what? the image and its flipped target?
-and retain the ability to handle resizes?
-how about a screenshot-context / screenshot-temp object then?
---]]
-function App:screenshotToFile(filename)
-	local Image = require 'image'
-	local w, h = self.width, self.height
-	local ssimg = Image(w, h, 4, 'unsigned char')
-	gl.glReadPixels(0, 0, w, h, gl.GL_RGBA, gl.GL_UNSIGNED_BYTE, ssimg.buffer)
-	ssimg:flip():save(filename)
 end
 
 return App():run()
