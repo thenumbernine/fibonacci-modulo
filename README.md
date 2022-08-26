@@ -12,7 +12,7 @@ Some examples:
 
 graph of modulo density:
 
-![](pics/modulo-density.svg)
+![](pics/modulo-density.png)
 
 To run the visualization:
 `run.lua [modulo-number]` 
