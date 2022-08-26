@@ -1,5 +1,6 @@
 #!/usr/bin/env luajit
 local table = require 'ext.table'
+local glCallOrDraw = require 'gl.call'
 
 local App = require 'imguiapp.withorbit'()
 
@@ -82,27 +83,29 @@ function App:update(...)
 	gl.glClearColor(0,0,0,1)			-- yes, on my linux, destination alpha does matter for the screenshots
 	gl.glClear(gl.GL_COLOR_BUFFER_BIT)
 
-	gradTex:enable()
-	gradTex:bind()
+	glCallOrDraw(self, function()
+		gradTex:enable()
+		gradTex:bind()
 
-	gl.glPointSize(3)
-	gl.glBegin(gl.GL_POINTS)
-	for i=0,n-1 do
-		gl.glTexCoord1f(i/n)
-		gl.glVertex2f(getPt(i))
-	end
-	gl.glEnd()
-	gl.glPointSize(1)
+		gl.glPointSize(3)
+		gl.glBegin(gl.GL_POINTS)
+		for i=0,n-1 do
+			gl.glTexCoord1f(i/n)
+			gl.glVertex2f(getPt(i))
+		end
+		gl.glEnd()
+		gl.glPointSize(1)
 
-	gl.glBegin(gl.GL_LINE_LOOP)
-	for _,i in ipairs(sequence) do
-		gl.glTexCoord1f(i/n)
-		gl.glVertex2f(getPt(i))
-	end
-	gl.glEnd()
-	
-	gradTex:unbind()
-	gradTex:disable()
+		gl.glBegin(gl.GL_LINE_LOOP)
+		for _,i in ipairs(sequence) do
+			gl.glTexCoord1f(i/n)
+			gl.glVertex2f(getPt(i))
+		end
+		gl.glEnd()
+		
+		gradTex:unbind()
+		gradTex:disable()
+	end)
 
 	if doScreenshotAndExit then
 		self:screenshotToFile(doScreenshotAndExit)
