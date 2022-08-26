@@ -10,6 +10,10 @@ Some examples:
 
 ![](pics/1001.png)
 
+graph of modulo density:
+
+![](pics/modulo-density.svg)
+
 To run the visualization:
 `run.lua [modulo-number]` 
 
