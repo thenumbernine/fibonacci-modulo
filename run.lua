@@ -78,7 +78,6 @@ end
 function App:update(...)
 	self.view:setup(self.width / self.height)	-- GLApp.View.apply update
 
-	gl.glClearColor(0,0,0,1)			-- yes, on my linux, destination alpha does matter for the screenshots
 	gl.glClear(gl.GL_COLOR_BUFFER_BIT)
 
 	self.callList = self.callList or {}
