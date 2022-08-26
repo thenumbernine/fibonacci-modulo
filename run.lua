@@ -11,7 +11,7 @@ local n = ... or 10
 -- do we want to take a pic and leave?
 local doScreenshotAndExit = cmdline.screenshot
 
-local series
+local sequence
 
 local gl
 
@@ -62,12 +62,12 @@ function App:initGL(gl_, ...)
 	-- fibonacci modulo
 	local f1 = 1
 	local f2 = 1
-	series = table{f1, f2}
+	sequence = table{f1, f2}
 	while true do
 		local f3 = (f1 + f2) % n
 		f1,f2 = f2,f3
 		if f1 == 1 and f2 == 1 then break end
-		series:insert(f3)
+		sequence:insert(f3)
 	end
 end
 
@@ -95,7 +95,7 @@ function App:update(...)
 	gl.glPointSize(1)
 
 	gl.glBegin(gl.GL_LINE_LOOP)
-	for _,i in ipairs(series) do
+	for _,i in ipairs(sequence) do
 		gl.glTexCoord1f(i/n)
 		gl.glVertex2f(getPt(i))
 	end
