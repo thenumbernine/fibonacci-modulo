@@ -1,5 +1,6 @@
 #!/usr/bin/env luajit
 local table = require 'ext.table'
+local ig = require 'imgui'
 local glCallOrDraw = require 'gl.call'
 local fib = require 'fibonacci-modulo.fibonacci'
 
@@ -8,8 +9,6 @@ local App = require 'imguiapp.withorbit'()
 local cmdline = require 'ext.cmdline'(...)
 --print(require 'ext.tolua'(cmdline))
 
-local n = ... or 10
-
 -- do we want to take a pic and leave?
 local doScreenshotAndExit = cmdline.screenshot
 
@@ -17,9 +16,9 @@ if cmdline.width then App.width = cmdline.width end
 if cmdline.height then App.height = cmdline.height end
 
 local gl
-local sequence
 function App:init(...)
-	self.title = 'Fibonacci Sequence Modulo '..n
+	self.polySize = math.max(2, tonumber((...)) or 10)
+	self.title = 'Fibonacci Sequence Modulo '..self.polySize
 	return App.super.init(self, ...)
 end
 
@@ -59,13 +58,17 @@ function App:initGL(...)
 	)
 	--]=]
 
-	sequence = fib.makeSequence(n)
-	local dense = fib.isDense(sequence, n)
-	print('dense?', dense)
+	self:reset()
 end
 
-local function getPt(i)
-	local th = (i/n + .25)*2*math.pi
+function App:reset()
+	self.callList = {}
+	self.sequence = fib.makeSequence(self.polySize)
+	self.dense = fib.isDense(self.sequence, self.polySize)
+end
+
+function App:getPt(i)
+	local th = (i/self.polySize + .25)*2*math.pi
 	return math.cos(th), math.sin(th)
 end
 
@@ -74,24 +77,23 @@ function App:update(...)
 
 	gl.glClear(gl.GL_COLOR_BUFFER_BIT)
 
-	self.callList = self.callList or {}
 	glCallOrDraw(self.callList, function()
 		gradTex:enable()
 		gradTex:bind()
 
 		gl.glPointSize(3)
 		gl.glBegin(gl.GL_POINTS)
-		for i=0,n-1 do
-			gl.glTexCoord1f(i/n)
-			gl.glVertex2f(getPt(i))
+		for i=0,self.polySize-1 do
+			gl.glTexCoord1f(i/self.polySize)
+			gl.glVertex2f(self:getPt(i))
 		end
 		gl.glEnd()
 		gl.glPointSize(1)
 
 		gl.glBegin(gl.GL_LINE_LOOP)
-		for _,i in ipairs(sequence) do
-			gl.glTexCoord1f(i/n)
-			gl.glVertex2f(getPt(i))
+		for _,i in ipairs(self.sequence) do
+			gl.glTexCoord1f(i/self.polySize)
+			gl.glVertex2f(self:getPt(i))
 		end
 		gl.glEnd()
 		
@@ -105,6 +107,14 @@ function App:update(...)
 	end
 
 	App.super.super.update(self, ...)	-- ImGuiApp's update
+end
+
+function App:updateGUI()
+	if ig.luatableInputInt('n', self, 'polySize') then
+		self.polySize = math.max(2, self.polySize)
+		self:reset()
+	end
+	ig.igText('dense? '..tostring(self.dense))
 end
 
 return App():run()
