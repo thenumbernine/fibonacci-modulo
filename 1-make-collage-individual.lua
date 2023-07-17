@@ -1,7 +1,7 @@
 #!/usr/bin/env luajit
 require 'ext'
 local collagedir = 'collage'
-file(collagedir):mkdir()
+path(collagedir):mkdir()
 local function printAndReturn(...)
 	print(...)
 	return ...

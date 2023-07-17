@@ -2,7 +2,7 @@
 require 'ext'
 local collagedir = 'collage'
 local fs = table()
-for f in file(collagedir):dir() do
+for f in path(collagedir):dir() do
 	fs:insert(f)
 end
 fs:sort(function(a,b)
