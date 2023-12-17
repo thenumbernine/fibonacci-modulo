@@ -3,7 +3,7 @@ require 'ext'
 local collagedir = 'collage'
 local fs = table()
 for f in path(collagedir):dir() do
-	fs:insert(f)
+	fs:insert(f.path)
 end
 fs:sort(function(a,b)
 	-- prioritize number sorting
