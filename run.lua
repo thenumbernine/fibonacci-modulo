@@ -97,17 +97,12 @@ void main() {
 }
 ]],
 		},
+		vertexes = {
+			data = vtxs,
+			dim = 3,
+		},
 		geometry = {
 			mode = gl.GL_POINTS,
-			count = #vtxs / 3,
-		},
-		attrs = {
-			vertex = {
-				buffer = {
-					data = vtxs,
-					dim = 3,
-				},
-			},
 		},
 	}
 
@@ -140,17 +135,12 @@ void main() {
 ]],
 		},
 		texs = {self.gradTex},
+		vertexes = {
+			data = vtxs,
+			dim = 3,
+		},
 		geometry = {
 			mode = gl.GL_LINE_LOOP,
-			count = #vtxs / 3,
-		},
-		attrs = {
-			vertex = {
-				buffer = {
-					data = vtxs,
-					dim = 3,
-				},
-			},
 		},
 	}
 end
