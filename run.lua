@@ -78,6 +78,11 @@ function App:reset()
 		local x, y = self:getPt(i)
 		vtxs:append{x, y, i/self.polySize}
 	end
+	
+	self.vertexBuf = require 'gl.arraybuffer'{
+		data = vtxs,
+		dim = 3,
+	}:unbind()
 	self.ptsceneobj = GLSceneObject{
 		program = {
 			version = 'latest',
@@ -97,21 +102,16 @@ void main() {
 }
 ]],
 		},
-		vertexes = {
-			data = vtxs,
-			dim = 3,
-		},
+		vertexes = self.vertexBuf,
 		geometry = {
 			mode = gl.GL_POINTS,
 		},
 	}
 
-	local vtxs = table()
-	local tcs = table()
-	for _,i in ipairs(self.sequence) do
-		local x, y = self:getPt(i)
-		vtxs:append{x, y, i/self.polySize}
-	end
+	self.indexBuf = require 'gl.elementarraybuffer'{
+		type = gl.GL_UNSIGNED_BYTE,
+		data = self.sequence,
+	}:unbind()
 	self.linesceneobj = GLSceneObject{
 		program = {
 			version = 'latest',
@@ -135,12 +135,10 @@ void main() {
 ]],
 		},
 		texs = {self.gradTex},
-		vertexes = {
-			data = vtxs,
-			dim = 3,
-		},
+		vertexes = self.vertexBuf,
 		geometry = {
 			mode = gl.GL_LINE_LOOP,
+			indexes = self.indexBuf,
 		},
 	}
 end
