@@ -1,4 +1,8 @@
+[![Donate via Stripe](https://img.shields.io/badge/Donate-Stripe-green.svg)](https://buy.stripe.com/00gbJZ0OdcNs9zi288)<br>
+
 Plots the Fibonacci sequence modulo some number on a circle.
+
+### [Launch](https://thenumbernine.github.io/glapp-js/run.html?dir=fibonacci-modulo&file=run.lua)
 
 To run the visualization:
 `run.lua n=[modulo-number]` 
