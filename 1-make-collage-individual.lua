@@ -13,7 +13,7 @@ end
 for i=2,101 do
 	exec(table{
 		'./run.lua',
-		i,
+		'n='..i,
 		'width=256',
 		'height=256',
 		'screenshot='..collagedir..'/'..i..'.png'

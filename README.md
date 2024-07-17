@@ -1,7 +1,7 @@
 Plots the Fibonacci sequence modulo some number on a circle.
 
 To run the visualization:
-`run.lua [modulo-number]` 
+`run.lua n=[modulo-number]` 
 
 To make a collage:
 

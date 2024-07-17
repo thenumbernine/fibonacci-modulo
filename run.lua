@@ -1,36 +1,39 @@
 #!/usr/bin/env luajit
+
+local cmdline = require 'ext.cmdline'.validate{
+	n = {desc='polygon size'},
+	gl = {desc='OpenGL backend'},
+	width = {desc='window width'},
+	height = {desc='window height'},
+	screenshot = {desc='do screenshot'},
+}(...)
+local gl = require 'gl.setup'(cmdline.gl or 'OpenGL')
 local table = require 'ext.table'
 local ig = require 'imgui'
-local glCallOrDraw = require 'gl.call'
+local GLSceneObject = require 'gl.sceneobject'
 local fib = require 'fibonacci-modulo.fibonacci'
 
 local App = require 'imguiapp.withorbit'()
-
-local cmdline = require 'ext.cmdline'(...)
---print(require 'ext.tolua'(cmdline))
+App.viewUseBuiltinMatrixMath = true
 
 -- do we want to take a pic and leave?
 local doScreenshotAndExit = cmdline.screenshot
-
 if cmdline.width then App.width = cmdline.width end
 if cmdline.height then App.height = cmdline.height end
 
-local gl
 function App:init(...)
-	self.polySize = math.max(2, tonumber((...)) or 10)
+	self.polySize = math.max(2, tonumber(cmdline.n) or 10)
 	self.title = 'Fibonacci Sequence Modulo '..self.polySize
 	return App.super.init(self, ...)
 end
 
-function App:initGL(...) 
+function App:initGL(...)
 	App.super.initGL(self, ...)
-	gl = self.gl
 	self.view.ortho = true
 	self.view.orthoSize = 1.1
 
-
 	-- [=[ TOOD I use this often enough, put it in one place
-	gradTex = require 'gl.gradienttex'(256, 
+	self.gradTex = require 'gl.gradienttex2d'(256,
 --[[ rainbow or heatmap or whatever
 		{
 			{0,0,0,0},
@@ -55,16 +58,10 @@ function App:initGL(...)
 		},
 --]]
 		false
-	)
+	):unbind()
 	--]=]
 
 	self:reset()
-end
-
-function App:reset()
-	self.callList = {}
-	self.sequence = fib.makeSequence(self.polySize)
-	self.dense = fib.isDense(self.sequence, self.polySize)
 end
 
 function App:getPt(i)
@@ -72,34 +69,108 @@ function App:getPt(i)
 	return math.cos(th), math.sin(th)
 end
 
+function App:reset()
+	self.sequence = fib.makeSequence(self.polySize)
+	self.dense = fib.isDense(self.sequence, self.polySize)
+
+	local vtxs = table()
+	local tcs = table()
+	for i=0,self.polySize-1 do
+		tcs:insert(i/self.polySize)
+		vtxs:append{self:getPt(i)}
+	end
+	self.ptsceneobj = GLSceneObject{
+		program = {
+			version = 'latest',
+			header = 'precision highp float;',
+			vertexCode = [[
+in vec2 vertex;
+in float tc;
+uniform mat4 mvProjMat;
+void main() {
+	gl_PointSize = 3.;	//doesn't work anyways
+	gl_Position = mvProjMat * vec4(vertex, 0., 1.);
+}
+]],
+			fragmentCode = [[
+out vec4 fragColor;
+void main() {
+	fragColor = vec4(1., 1., 1., 1.);
+}
+]],
+		},
+		vertexes = {
+			data = vtxs,
+			dim = 2,
+		},
+		geometry = {
+			mode = gl.GL_POINTS,
+		},
+		attrs = {
+			tc = {
+				buffer = {
+					data = tcs,
+				},
+			},
+		},
+	}
+
+	local vtxs = table()
+	local tcs = table()
+	for _,i in ipairs(self.sequence) do
+		tcs:insert(i/self.polySize)
+		vtxs:append{self:getPt(i)}
+	end
+	self.linesceneobj = GLSceneObject{
+		program = {
+			version = 'latest',
+			header = 'precision highp float;',
+			vertexCode = [[
+in vec2 vertex;
+in float tc;
+out float tcv;
+uniform mat4 mvProjMat;
+void main() {
+	tcv = tc;
+	gl_Position = mvProjMat * vec4(vertex, 0., 1.);
+}
+]],
+			fragmentCode = [[
+in float tcv;
+out vec4 fragColor;
+uniform sampler2D tex;
+void main() {
+	fragColor = texture(tex, vec2(tcv, .5));
+}
+]],
+		},
+		texs = {self.gradTex},
+		vertexes = {
+			data = vtxs,
+			dim = 2,
+		},
+		geometry = {
+			mode = gl.GL_LINE_LOOP,
+		},
+		attrs = {
+			tc = {
+				buffer = {
+					data = tcs,
+				},
+			},
+		},
+	}
+end
+
 function App:update(...)
 	self.view:setup(self.width / self.height)	-- GLApp.View.apply update
 
 	gl.glClear(gl.GL_COLOR_BUFFER_BIT)
 
-	glCallOrDraw(self.callList, function()
-		gradTex:enable()
-		gradTex:bind()
-
-		gl.glPointSize(3)
-		gl.glBegin(gl.GL_POINTS)
-		for i=0,self.polySize-1 do
-			gl.glTexCoord1f(i/self.polySize)
-			gl.glVertex2f(self:getPt(i))
-		end
-		gl.glEnd()
-		gl.glPointSize(1)
-
-		gl.glBegin(gl.GL_LINE_LOOP)
-		for _,i in ipairs(self.sequence) do
-			gl.glTexCoord1f(i/self.polySize)
-			gl.glVertex2f(self:getPt(i))
-		end
-		gl.glEnd()
-		
-		gradTex:unbind()
-		gradTex:disable()
-	end)
+	self.ptsceneobj.uniforms.mvProjMat = self.view.mvProjMat.ptr
+	self.ptsceneobj:draw()
+	self.linesceneobj.uniforms.mvProjMat = self.view.mvProjMat.ptr
+	self.linesceneobj:draw()
 
 	if doScreenshotAndExit then
 		self:screenshotToFile(doScreenshotAndExit)
