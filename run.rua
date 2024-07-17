@@ -1,4 +1,4 @@
-#!/usr/bin/env luajit
+#!/usr/bin/env rua
 
 local cmdline = require 'ext.cmdline'.validate{
 	n = {desc='polygon size'},
@@ -7,8 +7,6 @@ local cmdline = require 'ext.cmdline'.validate{
 	height = {desc='window height'},
 	screenshot = {desc='do screenshot'},
 }(...)
-
-local table = require 'ext.table'
 local gl = require 'gl.setup'(cmdline.gl or 'OpenGL')
 local ig = require 'imgui'
 local GLSceneObject = require 'gl.sceneobject'
@@ -22,13 +20,13 @@ local doScreenshotAndExit = cmdline.screenshot
 App.width = cmdline.width or App.width
 App.height = cmdline.height or App.height
 
-function App:init(...)
+App.init = [:, ...] do
 	self.polySize = math.max(2, tonumber(cmdline.n) or 10)
 	self.title = 'Fibonacci Sequence Modulo '..self.polySize
 	return App.super.init(self, ...)
 end
 
-function App:initGL(...)
+App.initGL = [:, ...] do
 	App.super.initGL(self, ...)
 	self.view.ortho = true
 	self.view.orthoSize = 1.1
@@ -65,12 +63,9 @@ function App:initGL(...)
 	self:reset()
 end
 
-function App:getPt(i)
-	local th = (i/self.polySize + .25)*2*math.pi
-	return math.cos(th), math.sin(th)
-end
+App.getPt = [:, i] (([th](math.cos(th), math.sin(th)))((i/self.polySize + .25)*2*math.pi))
 
-function App:reset()
+App.reset = [:] do
 	self.sequence = fib.makeSequence(self.polySize)
 	self.dense = fib.isDense(self.sequence, self.polySize)
 
@@ -144,7 +139,7 @@ void main() {
 	}
 end
 
-function App:update(...)
+App.update = [:, ...] do
 	self.view:setup(self.width / self.height)	-- GLApp.View.apply update
 
 	gl.glClear(gl.GL_COLOR_BUFFER_BIT)
@@ -162,7 +157,7 @@ function App:update(...)
 	App.super.super.update(self, ...)	-- ImGuiApp's update
 end
 
-function App:updateGUI()
+App.updateGUI = [:] do
 	if ig.luatableInputInt('n', self, 'polySize') then
 		self.polySize = math.max(2, self.polySize)
 		self:reset()
