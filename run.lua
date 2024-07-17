@@ -110,7 +110,7 @@ void main() {
 	}
 
 	self.indexBuf = require 'gl.elementarraybuffer'{
-		type = gl.GL_UNSIGNED_BYTE,
+		type = gl.GL_UNSIGNED_SHORT,
 		data = self.sequence,
 	}:unbind()
 	self.linesceneobj = GLSceneObject{
