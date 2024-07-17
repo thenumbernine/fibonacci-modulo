@@ -74,22 +74,20 @@ function App:reset()
 	self.dense = fib.isDense(self.sequence, self.polySize)
 
 	local vtxs = table()
-	local tcs = table()
 	for i=0,self.polySize-1 do
-		tcs:insert(i/self.polySize)
-		vtxs:append{self:getPt(i)}
+		local x, y = self:getPt(i)
+		vtxs:append{x, y, i/self.polySize}
 	end
 	self.ptsceneobj = GLSceneObject{
 		program = {
 			version = 'latest',
 			header = 'precision highp float;',
 			vertexCode = [[
-in vec2 vertex;
-in float tc;
+in vec3 vertex;
 uniform mat4 mvProjMat;
 void main() {
 	gl_PointSize = 3.;	//doesn't work anyways
-	gl_Position = mvProjMat * vec4(vertex, 0., 1.);
+	gl_Position = mvProjMat * vec4(vertex.xy, 0., 1.);
 }
 ]],
 			fragmentCode = [[
@@ -99,17 +97,15 @@ void main() {
 }
 ]],
 		},
-		vertexes = {
-			data = vtxs,
-			dim = 2,
-		},
 		geometry = {
 			mode = gl.GL_POINTS,
+			count = #vtxs / 3,
 		},
 		attrs = {
-			tc = {
+			vertex = {
 				buffer = {
-					data = tcs,
+					data = vtxs,
+					dim = 3,
 				},
 			},
 		},
@@ -118,21 +114,20 @@ void main() {
 	local vtxs = table()
 	local tcs = table()
 	for _,i in ipairs(self.sequence) do
-		tcs:insert(i/self.polySize)
-		vtxs:append{self:getPt(i)}
+		local x, y = self:getPt(i)
+		vtxs:append{x, y, i/self.polySize}
 	end
 	self.linesceneobj = GLSceneObject{
 		program = {
 			version = 'latest',
 			header = 'precision highp float;',
 			vertexCode = [[
-in vec2 vertex;
-in float tc;
+in vec3 vertex;
 out float tcv;
 uniform mat4 mvProjMat;
 void main() {
-	tcv = tc;
-	gl_Position = mvProjMat * vec4(vertex, 0., 1.);
+	tcv = vertex.z;
+	gl_Position = mvProjMat * vec4(vertex.xy, 0., 1.);
 }
 ]],
 			fragmentCode = [[
@@ -145,17 +140,15 @@ void main() {
 ]],
 		},
 		texs = {self.gradTex},
-		vertexes = {
-			data = vtxs,
-			dim = 2,
-		},
 		geometry = {
 			mode = gl.GL_LINE_LOOP,
+			count = #vtxs / 3,
 		},
 		attrs = {
-			tc = {
+			vertex = {
 				buffer = {
-					data = tcs,
+					data = vtxs,
+					dim = 3,
 				},
 			},
 		},
