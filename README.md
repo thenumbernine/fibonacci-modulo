@@ -2,7 +2,7 @@
 
 Plots the Fibonacci sequence modulo some number on a circle.
 
-### [Launch](https://thenumbernine.github.io/glapp-js/run.html?dir=fibonacci-modulo&file=run.lua)
+### [Launch](https://thenumbernine.github.io/glapp-js/index.html?dir=fibonacci-modulo&file=run.lua)
 
 To run the visualization:
 `run.lua n=[modulo-number]` 
