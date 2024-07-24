@@ -87,7 +87,7 @@ function App:reset()
 	self.ptsceneobj = GLSceneObject{
 		program = {
 			version = 'latest',
-			header = 'precision highp float;',
+			precision = 'best',
 			vertexCode = [[
 in vec3 vertex;
 uniform mat4 mvProjMat;
@@ -116,7 +116,7 @@ void main() {
 	self.linesceneobj = GLSceneObject{
 		program = {
 			version = 'latest',
-			header = 'precision highp float;',
+			precision = 'best',
 			vertexCode = [[
 in vec3 vertex;
 out float tcv;
