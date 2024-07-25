@@ -109,10 +109,6 @@ void main() {
 		},
 	}
 
-	self.indexBuf = require 'gl.elementarraybuffer'{
-		type = gl.GL_UNSIGNED_SHORT,
-		data = self.sequence,
-	}:unbind()
 	self.linesceneobj = GLSceneObject{
 		program = {
 			version = 'latest',
@@ -139,7 +135,9 @@ void main() {
 		vertexes = self.vertexBuf,
 		geometry = {
 			mode = gl.GL_LINE_LOOP,
-			indexes = self.indexBuf,
+			indexes = {
+				data = self.sequence,
+			},
 		},
 	}
 end

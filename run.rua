@@ -82,7 +82,7 @@ App.reset = [:] do
 	self.ptsceneobj = GLSceneObject{
 		program = {
 			version = 'latest',
-			header = 'precision highp float;',
+			precision = 'best',
 			vertexCode = [[
 in vec3 vertex;
 uniform mat4 mvProjMat;
@@ -104,14 +104,10 @@ void main() {
 		},
 	}
 
-	self.indexBuf = require 'gl.elementarraybuffer'{
-		type = gl.GL_UNSIGNED_BYTE,
-		data = self.sequence,
-	}:unbind()
 	self.linesceneobj = GLSceneObject{
 		program = {
 			version = 'latest',
-			header = 'precision highp float;',
+			precision = 'best',
 			vertexCode = [[
 in vec3 vertex;
 out float tcv;
@@ -134,7 +130,9 @@ void main() {
 		vertexes = self.vertexBuf,
 		geometry = {
 			mode = gl.GL_LINE_LOOP,
-			indexes = self.indexBuf,
+			indexes = {
+				data = self.sequence,
+			},
 		},
 	}
 end
