@@ -15,7 +15,6 @@ local GLSceneObject = require 'gl.sceneobject'
 local fib = require 'fibonacci-modulo.fibonacci'
 
 local App = require 'imguiapp.withorbit'()
-App.viewUseBuiltinMatrixMath = true
 
 -- do we want to take a pic and leave?
 local doScreenshotAndExit = cmdline.screenshot
