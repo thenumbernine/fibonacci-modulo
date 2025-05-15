@@ -14,7 +14,7 @@ local ig = require 'imgui'
 local GLSceneObject = require 'gl.sceneobject'
 local fib = require 'fibonacci-modulo.fibonacci'
 
-local App = require 'imguiapp.withorbit'()
+local App = require 'imgui.appwithorbit'()
 
 -- do we want to take a pic and leave?
 local doScreenshotAndExit = cmdline.screenshot
