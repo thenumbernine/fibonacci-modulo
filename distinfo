@@ -1,0 +1,22 @@
+name = "fibonacci-modulo"
+files = {
+	["1-make-collage-individual.lua"] = "fibonacci-modulo/1-make-collage-individual.lua",
+	["2-combine-collage.lua"] = "fibonacci-modulo/2-combine-collage.lua",
+	["README.md"] = "fibonacci-modulo/README.md",
+	["fibonacci-modulo-dev-1.rockspec"] = "fibonacci-modulo/fibonacci-modulo-dev-1.rockspec",
+	["fibonacci.lua"] = "fibonacci-modulo/fibonacci.lua",
+	["pics/1001.png"] = "fibonacci-modulo/pics/1001.png",
+	["pics/collage.png"] = "fibonacci-modulo/pics/collage.png",
+	["pics/modulo-density.png"] = "fibonacci-modulo/pics/modulo-density.png",
+	["plot-density.lua"] = "fibonacci-modulo/plot-density.lua",
+	["run.lua"] = "fibonacci-modulo/run.lua",
+	["run.rua"] = "fibonacci-modulo/run.rua",
+	["which-are-dense.lua"] = "fibonacci-modulo/which-are-dense.lua",
+}
+deps = {
+	"ext",
+	"gl",
+	"gnuplot",
+	"image",
+	"imgui",
+}
